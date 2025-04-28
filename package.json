@@ -1,24 +1,32 @@
 {
-  "name": "with-tailwindcss-app",
-  "version": "0.1.0",
-  "private": true,
   "scripts": {
-    "dev": "next dev",
-    "build": "next build",
-    "start": "next start",
-    "lint": "next lint"
+    "build": "webpack",
+    "start": "webpack serve --mode development"
   },
   "dependencies": {
     "@airgap/beacon-sdk": "^4.0.12",
+    "@babel/core": "^7.26.10",
     "@taquito/beacon-wallet": "^17.3.2",
     "@taquito/taquito": "^17.3.2",
+    "babel-loader": "^10.0.0",
     "next": "14.0.1",
     "react": "^18",
-    "react-dom": "^18"
+    "react-dom": "^18",
+    "webpack": "^5.99.7"
   },
   "devDependencies": {
+    "@babel/preset-env": "^7.26.9",
+    "@babel/preset-react": "^7.26.3",
     "autoprefixer": "^10.0.1",
     "postcss": "^8",
-    "tailwindcss": "^3.3.0"
+    "tailwindcss": "^3.3.0",
+    "webpack-cli": "^6.0.1",
+    "webpack-dev-server": "^5.2.1"
+  },
+  "babel": {
+    "presets": [
+      "@babel/env",
+      "@babel/react"
+    ]
   }
 }

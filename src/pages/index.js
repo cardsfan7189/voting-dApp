@@ -1,29 +1,31 @@
-import { Inter } from "next/font/google";
-//import Ballot from "@/components/Ballot";
+// { Inter } from "next/font/google";
 
 // Step 1  
 import { BeaconWallet } from "@taquito/beacon-wallet";
-import { TezosToolkit } from "@taquito/taquito";
-import { CONTRACT_ADDRESS, RPC_URL } from "@/helpers/constants";
+import { TezosToolkit, Wallet } from "@taquito/taquito";
+import { CONTRACT_ADDRESS, RPC_URL } from "../helpers/constants";
 import { useEffect, useState, useRef } from "react";
 
-const inter = Inter({ subsets: ["latin"] });
+// const inter = Inter({ subsets: ["latin"] });
 
-
-  
-  function App() {const [selectedValue, setSelectedValue] = useState('');
-
-  const [message, setMessage] = useState("");
-  const [reload, setReload] = useState(false);
-  const walletRef = useRef(null);
+export default function Home() {
+  // Step 2 - Initialise a Tezos instance  
   const Tezos = new TezosToolkit(RPC_URL);
 
+  // Step 3 - Set state to display content on the screen  
+  const [players, setPlayers] = useState([]);
+  const [reload, setReload] = useState(false);
+  const [message, setMessage] = useState("");
+
+  // Step 4 - Set a wallet ref to hold the wallet instance later  
+  const walletRef = useRef(null);
+
+  // Step 5 - Create a ConnectWallet Function  
   const connectWallet = async () => {
-    setMessage("Connect wallet");
-    console.log("Connect wallet")
+    setMessage("");
     try {
       const options = {
-        name: "Vote for proposal",
+        name: "Ballon tz'or",
         network: { type: "ghostnet" },
       };
       const wallet = new BeaconWallet(options);
@@ -36,77 +38,85 @@ const inter = Inter({ subsets: ["latin"] });
     }
   };
 
-    // Step 8 - Create a function that calls the increase_votes entrypoint  
+  // Step 6 - Create a function to allow users disconnect their wallet from the  
+  // dApp  
+  const disconnectWallet = () => {
+    setMessage("");
+    if (walletRef.current != "disconnected") {
+      walletRef.current?.client.clearActiveAccount();
+      walletRef.current = "disconnected";
+      console.log("Disconnected");
+    } else {
+      console.log("Already disconnected");
+    }
+  };
+
+  // Step 8 - Create a function that calls the increase_votes entrypoint  
   // and reloads the page to update it and display the new state of the storage  
-  const submitVote = async (voteSelection) => {
+  const submitVote = async (selection) => {
     try {
-      console.log("in submitVote")
       await connectWallet();
-      console.log("wallet connected")
-      console.log(CONTRACT_ADDRESS)
       const contract = await Tezos.wallet.at(CONTRACT_ADDRESS);
-      const op = await contract.methods.vote(selectedValue).send();
+      //const op = await contract.methods.increase_votes(selection).send();
+      const op = await contract.methods.vote(selection).send();
       setMessage("Awaiting Confirmation....");
       const hash = await op.confirmation(2);
-      console.log("hash is " + hash);
+      console.log(hash);
       if (hash) {
         setMessage("Vote Confirmed.");
         setReload(true);
       }
     } catch (error) {
-      setMessage(error.message);
-      console.log(error);
+      setMessage(error.message + ": Check wallet message for details");
+      //console.log(error.message);
     }
   };
 
-  const handleChange = (event) => {
-    setSelectedValue(event.target.value);
-  };
-  
+  // Step 9 - Use a useEffect to call the getPlayers function when the page loads  
+  // initially  
+  //useEffect(() => {
+    //getPlayers();
+    //if (reload) {
+     // setReload(false);
+    //}
+  //}, [reload]);
+
   return (
-    <main
-    className={`flex min-h-screen flex-col items-center justify-between p-24 ${inter.className}`}
-  >
-    <h1 className="text-2xl font-bold mb-3">Your chance to vote for the proposal</h1>
-    <form>
+    //<main className={`flex min-h-screen flex-col items-center justify-between p-24 ${inter.className}`}>
+    <main>
+  
       <div>
-        <label>
-          <input
-            type="radio"
-            value="yay"
-            checked={selectedValue === "yay"}
-            onChange={handleChange}
-          />
-          Vote yay
-        </label>
+        <h1 className="text-2xl font-bold mb-3">Vote for proposal</h1>
       </div>
-      <div>
-        <label>
-          <input
-            type="radio"
-            value="nay"
-            checked={selectedValue === "nay"}
-            onChange={handleChange}
-          />
-          Vote nay
-        </label>
+      <div className="flex flex-col items-center w-full gap-2">
+      <button
+        className="mt-4 rounded-full bg-red-500 p-3 hover:bg-red-700 transition-all ease-in-out"
+        onClick={() => submitVote("yay")}
+      >
+        Vote yay
+      </button>
+      <button
+        className="mt-4 rounded-full bg-red-500 p-3 hover:bg-red-700 transition-all ease-in-out"
+        onClick={() => submitVote("nay")}
+      >
+        Vote nay
+      </button>
+      <button
+        className="mt-4 rounded-full bg-red-500 p-3 hover:bg-red-700 transition-all ease-in-out"
+        onClick={() => submitVote("pass")}
+      >
+        Vote pass
+      </button>
       </div>
-      <div>
-        <label>
-          <input
-            type="radio"
-            value="pass"
-            checked={selectedValue === "pass"}
-            onChange={handleChange}
-          />
-          Vote pass
-        </label>
-      </div>
-      <p>Selected value: {selectedValue}</p>
-      <button onClick={() => { submitVote(selectedValue)}}>Submit vote</button>
-    </form>
+      <p className="my-3">
+        {message ? <span className="text-black-300">{message}</span> : ""}
+      </p>
+      <button
+        className="mt-4 rounded-full bg-red-500 p-3 hover:bg-red-700 transition-all ease-in-out"
+        onClick={() => disconnectWallet()}
+      >
+        Disconnect Wallet
+      </button>
     </main>
   );
-  }
-  
-  export default App;
+}
