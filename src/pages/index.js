@@ -5,10 +5,19 @@ import { BeaconWallet } from "@taquito/beacon-wallet";
 import { TezosToolkit, Wallet } from "@taquito/taquito";
 import { CONTRACT_ADDRESS, RPC_URL } from "../helpers/constants";
 import { useEffect, useState, useRef } from "react";
+import { createRoot  } from 'react-dom/client';
+import ReactDOM from 'react-dom/client';
+import { Buffer } from "buffer";
+
+Buffer.from("anything", "base64");
+window.Buffer = window.Buffer || require("buffer").Buffer;
+
 
 // const inter = Inter({ subsets: ["latin"] });
 
-export default function Home() {
+window.Buffer = window.Buffer || require("buffer").Buffer; 
+
+function Home() {
   // Step 2 - Initialise a Tezos instance  
   const Tezos = new TezosToolkit(RPC_URL);
 
@@ -82,7 +91,7 @@ export default function Home() {
   //}, [reload]);
 
   return (
-    //<main className={`flex min-h-screen flex-col items-center justify-between p-24 ${inter.className}`}>
+
     <main>
   
       <div>
@@ -120,3 +129,5 @@ export default function Home() {
     </main>
   );
 }
+const root = ReactDOM.createRoot(document.getElementById('root'));
+root.render(<Home />);
