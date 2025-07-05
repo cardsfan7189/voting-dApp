@@ -5,23 +5,10 @@ import { BeaconWallet } from "@taquito/beacon-wallet";
 import { TezosToolkit, Wallet } from "@taquito/taquito";
 import { CONTRACT_ADDRESS, RPC_URL } from "../helpers/constants";
 import { useEffect, useState, useRef } from "react";
-import { createRoot  } from 'react-dom/client';
-import ReactDOM from 'react-dom/client';
-import { Buffer } from "buffer";
-
-Buffer.from("anything", "base64");
-
-if (typeof window !== 'undefined') {
-  window.Buffer = window.Buffer || require("buffer").Buffer;
-}
-
-
 
 // const inter = Inter({ subsets: ["latin"] });
 
-//window.Buffer = window.Buffer || require("buffer").Buffer; 
-
-function Home() {
+export default function Home() {
   // Step 2 - Initialise a Tezos instance  
   const Tezos = new TezosToolkit(RPC_URL);
 
@@ -70,10 +57,8 @@ function Home() {
     try {
       await connectWallet();
       const contract = await Tezos.wallet.at(CONTRACT_ADDRESS);
-        console.log(CONTRACT_ADDRESS)
-        console.log("running without vote method and with default transfer")
-      const op = await contract.methodsObject.default(selection).send();
-      //const op = await contract.methods.transfer(selection).send();
+      //const op = await contract.methods.increase_votes(selection).send();
+      const op = await contract.methods.vote(selection).send();
       setMessage("Awaiting Confirmation....");
       const hash = await op.confirmation(2);
       console.log(hash);
@@ -82,7 +67,7 @@ function Home() {
         setReload(true);
       }
     } catch (error) {
-      setMessage(JSON.stringify(error, null, 2) + ": Check wallet message for details");
+      setMessage(error.message + ": Check wallet message for details");
       //console.log(error.message);
     }
   };
@@ -135,5 +120,3 @@ function Home() {
     </main>
   );
 }
-const root = ReactDOM.createRoot(document.getElementById('root'));
-root.render(<Home />);
